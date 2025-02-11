@@ -12,7 +12,7 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'none', interval: 0, exceptions: [] },
       notificationTime: 0,
     },
     {
@@ -24,7 +24,7 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'none', interval: 0, exceptions: [] },
       notificationTime: 0,
     },
     {
@@ -36,7 +36,7 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0 },
+      repeat: { type: 'none', interval: 0, exceptions: [] },
       notificationTime: 0,
     },
   ];
@@ -87,7 +87,7 @@ describe('getFilteredEvents', () => {
         description: '',
         location: '',
         category: '',
-        repeat: { type: 'none', interval: 0 },
+        repeat: { type: 'none', interval: 0, exceptions: [] },
         notificationTime: 0,
       },
       ...events,
@@ -100,7 +100,7 @@ describe('getFilteredEvents', () => {
         description: '',
         location: '',
         category: '',
-        repeat: { type: 'none', interval: 0 },
+        repeat: { type: 'none', interval: 0, exceptions: [] },
         notificationTime: 0,
       },
     ];
