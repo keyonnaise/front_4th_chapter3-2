@@ -188,11 +188,11 @@ function App() {
                   <Text fontWeight="bold">{date.getDate()}</Text>
                   {filteredEvents
                     .filter((event) => new Date(event.date).toDateString() === date.toDateString())
-                    .map((event) => {
+                    .map((event, i) => {
                       const isNotified = notifiedEvents.includes(event.id);
                       return (
                         <Box
-                          key={event.id}
+                          key={i}
                           p={1}
                           my={1}
                           bg={isNotified ? 'red.100' : 'gray.100'}
@@ -220,7 +220,6 @@ function App() {
 
   const renderMonthView = () => {
     const weeks = getWeeksAtMonth(currentDate);
-
     return (
       <VStack data-testid="month-view" align="stretch" w="full" spacing={4}>
         <Heading size="md">{formatMonth(currentDate)}</Heading>
@@ -257,11 +256,11 @@ function App() {
                               {holiday}
                             </Text>
                           )}
-                          {getEventsForDay(filteredEvents, day).map((event) => {
+                          {getEventsForDay(filteredEvents, day).map((event, i) => {
                             const isNotified = notifiedEvents.includes(event.id);
                             return (
                               <Box
-                                key={event.id}
+                                key={i}
                                 p={1}
                                 my={1}
                                 bg={isNotified ? 'red.100' : 'gray.100'}
@@ -357,13 +356,6 @@ function App() {
           </FormControl>
 
           <FormControl>
-            <FormLabel>반복 설정</FormLabel>
-            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
-              반복 일정
-            </Checkbox>
-          </FormControl>
-
-          <FormControl>
             <FormLabel>알림 설정</FormLabel>
             <Select
               value={notificationTime}
@@ -377,6 +369,13 @@ function App() {
             </Select>
           </FormControl>
 
+          <FormControl>
+            <FormLabel>반복 설정</FormLabel>
+            <Checkbox isChecked={isRepeating} onChange={(e) => setIsRepeating(e.target.checked)}>
+              반복 일정
+            </Checkbox>
+          </FormControl>
+
           {isRepeating && (
             <VStack width="100%">
               <FormControl>
@@ -385,6 +384,9 @@ function App() {
                   value={repeatType}
                   onChange={(e) => setRepeatType(e.target.value as RepeatType)}
                 >
+                  <option value="none" disabled>
+                    유형을 선택해주세요.
+                  </option>
                   <option value="daily">매일</option>
                   <option value="weekly">매주</option>
                   <option value="monthly">매월</option>
@@ -459,8 +461,8 @@ function App() {
           {filteredEvents.length === 0 ? (
             <Text>검색 결과가 없습니다.</Text>
           ) : (
-            filteredEvents.map((event) => (
-              <Box key={event.id} borderWidth={1} borderRadius="lg" p={3} width="100%">
+            filteredEvents.map((event, i) => (
+              <Box key={i} borderWidth={1} borderRadius="lg" p={3} width="100%">
                 <HStack justifyContent="space-between">
                   <VStack align="start">
                     <HStack>

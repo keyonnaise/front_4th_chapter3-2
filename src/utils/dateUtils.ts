@@ -53,6 +53,12 @@ export function getWeeksAtMonth(currentDate: Date) {
 
 export function getEventsForDay(events: Event[], date: number): Event[] {
   return events.filter((event) => new Date(event.date).getDate() === date);
+  // const result: Event[] = [];
+  // events.forEach((event) => {
+  //   const repeatEvents = createRepeatEvents(event, date, date);
+  //   result.push(...repeatEvents);
+  // });
+  // return result;
 }
 
 export function formatWeek(targetDate: Date) {
@@ -107,4 +113,22 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(currentDate.getMonth() + 1),
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
+}
+
+export function addMonthsWithOriginalDate(date: Date, originalDate: Date, amount: number): Date {
+  const result = new Date(date);
+  const referenceDate = originalDate.getDate();
+
+  result.setDate(1);
+  result.setMonth(result.getMonth() + amount);
+
+  const lastDayOfMonth = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
+
+  if (referenceDate === 31) {
+    result.setDate(lastDayOfMonth);
+  } else {
+    result.setDate(Math.min(referenceDate, lastDayOfMonth));
+  }
+
+  return result;
 }
