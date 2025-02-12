@@ -50,11 +50,6 @@ function filterEventsByDateRange(events: Event[], startDate: Date, endDate: Date
     repeatEvents.push(...recurringEvents);
   });
   return repeatEvents;
-
-  // return events.filter((event) => {
-  //   const eventDate = new Date(event.date);
-  //   return isDateInRange(eventDate, start, end);
-  // });
 }
 
 function filterEventsByDateRangeAtWeek(events: Event[], currentDate: Date) {

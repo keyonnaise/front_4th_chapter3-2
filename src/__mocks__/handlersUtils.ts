@@ -3,7 +3,62 @@ import { http, HttpResponse } from 'msw';
 import { server } from '../setupTests';
 import { Event } from '../types';
 
+const EVENTS_ENDPOINT = '/api/events';
+
 // ! Hard 여기 제공 안함
+export const setupMockHandlers = (initEvents: Event[] = []) => {
+  let mockEvents = [...initEvents];
+
+  server.use(
+    /**
+     * GET /api/events
+     */
+    http.get(EVENTS_ENDPOINT, () => {
+      return HttpResponse.json({ events: mockEvents });
+    }),
+
+    /**
+     * POST /api/events
+     */
+    http.post(EVENTS_ENDPOINT, async ({ request }) => {
+      const newEvent = (await request.json()) as Event;
+      newEvent.id = `${mockEvents.length + 1}`;
+
+      mockEvents = [...mockEvents, newEvent];
+
+      return HttpResponse.json(newEvent, { status: 201 });
+    }),
+
+    /**
+     * PUT /api/events/:id
+     */
+    http.put(`${EVENTS_ENDPOINT}/:id`, async ({ params, request }) => {
+      const { id } = params;
+      const modifiedEvent = (await request.json()) as Event;
+      const index = mockEvents.findIndex((event) => event.id === id);
+
+      mockEvents[index] = { ...mockEvents[index], ...modifiedEvent };
+
+      return index !== -1
+        ? HttpResponse.json(modifiedEvent, { status: 201 })
+        : new HttpResponse(null, { status: 404 });
+    }),
+
+    /**
+     * DELETE /api/events/:id
+     */
+    http.delete(`${EVENTS_ENDPOINT}/:id`, ({ params }) => {
+      const index = mockEvents.findIndex((event) => event.id === params.id);
+
+      mockEvents = mockEvents.filter((event) => event.id !== params.id);
+
+      return index !== -1
+        ? new HttpResponse(null, { status: 204 })
+        : new HttpResponse(null, { status: 404 });
+    })
+  );
+};
+
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
   const mockEvents: Event[] = [...initEvents];
 

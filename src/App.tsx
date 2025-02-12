@@ -105,10 +105,10 @@ function App() {
 
   const originated = editingEvent !== null && !editingEvent.title.includes('반복');
   const { events, fetchEvents, saveEvent, deleteEvent } = useEventOperations(originated, {
-    onSave: () => {
+    onSave: async () => {
       if (editingEvent?.id && !originated) {
         // 반복 이벤트가 수정될 경우 원본 이벤트 repeat.exceptions에 수정 될 반복 이벤트의 일자를 삽입함
-        addExceptionDateToEvent(editingEvent, editingEvent.date);
+        await addExceptionDateToEvent(editingEvent, editingEvent.date);
       }
       setEditingEvent(null);
     },
@@ -190,24 +190,13 @@ function App() {
         throw new Error('Failed to disable repeat event');
       }
 
-      fetchEvents();
-
-      toast({
-        title: '일정이 삭제되었습니다.',
-        status: 'info',
-        duration: 3000,
-        isClosable: true,
-      });
+      // fetchEvents();
     } catch (error) {
-      console.error('Error deleting event:', error);
-      toast({
-        title: '일정 삭제 실패',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      console.error(error);
     }
   };
+
+  // console.log(filteredEvents);
 
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
@@ -504,7 +493,7 @@ function App() {
           {filteredEvents.length === 0 ? (
             <Text>검색 결과가 없습니다.</Text>
           ) : (
-            filteredEvents.map((event, i, arr) => (
+            filteredEvents.map((event, i) => (
               <Box key={i} borderWidth={1} borderRadius="lg" p={3} width="100%">
                 <HStack justifyContent="space-between">
                   <VStack align="start">
@@ -553,11 +542,14 @@ function App() {
                     <IconButton
                       aria-label="Delete event"
                       icon={<DeleteIcon />}
-                      onClick={() =>
-                        !event.title.includes('(반복)')
-                          ? deleteEvent(event.id)
-                          : addExceptionDateToEvent(event, event.date)
-                      }
+                      onClick={async () => {
+                        if (event.title.includes('(반복)')) {
+                          await addExceptionDateToEvent(event, event.date);
+                          await fetchEvents();
+                          return;
+                        }
+                        deleteEvent(event.id);
+                      }}
                     />
                   </HStack>
                 </HStack>

@@ -5,7 +5,7 @@ import { Event, EventForm } from '../types';
 
 export const useEventOperations = (
   originated: boolean,
-  { onSave, onDelete }: { onSave?: () => void; onDelete?: () => void } = {}
+  { onSave, onDelete }: { onSave?: () => Promise<void>; onDelete?: () => void } = {}
 ) => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
@@ -50,7 +50,7 @@ export const useEventOperations = (
         throw new Error('Failed to save event');
       }
 
-      onSave?.();
+      await onSave?.();
       await fetchEvents();
 
       toast({
