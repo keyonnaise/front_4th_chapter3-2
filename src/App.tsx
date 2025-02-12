@@ -103,9 +103,16 @@ function App() {
     editEvent,
   } = useEventForm();
 
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
-  );
+  const originated = editingEvent !== null && !editingEvent.title.includes('반복');
+  const { events, fetchEvents, saveEvent, deleteEvent } = useEventOperations(originated, {
+    onSave: () => {
+      if (editingEvent?.id && !originated) {
+        // 반복 이벤트가 수정될 경우 원본 이벤트 repeat.exceptions에 수정 될 반복 이벤트의 일자를 삽입함
+        addExceptionDateToEvent(editingEvent, editingEvent.date);
+      }
+      setEditingEvent(null);
+    },
+  });
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
   const { view, setView, currentDate, holidays, navigate } = useCalendarView();
@@ -163,6 +170,42 @@ function App() {
     } else {
       await saveEvent(eventData);
       resetForm();
+    }
+  };
+
+  const addExceptionDateToEvent = async (event: Event, exceptionDate: string) => {
+    try {
+      const response = await fetch(`/api/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          repeat: {
+            ...event.repeat,
+            exceptions: [...event.repeat.exceptions, exceptionDate],
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to disable repeat event');
+      }
+
+      fetchEvents();
+
+      toast({
+        title: '일정이 삭제되었습니다.',
+        status: 'info',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      toast({
+        title: '일정 삭제 실패',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -461,7 +504,7 @@ function App() {
           {filteredEvents.length === 0 ? (
             <Text>검색 결과가 없습니다.</Text>
           ) : (
-            filteredEvents.map((event, i) => (
+            filteredEvents.map((event, i, arr) => (
               <Box key={i} borderWidth={1} borderRadius="lg" p={3} width="100%">
                 <HStack justifyContent="space-between">
                   <VStack align="start">
@@ -510,7 +553,11 @@ function App() {
                     <IconButton
                       aria-label="Delete event"
                       icon={<DeleteIcon />}
-                      onClick={() => deleteEvent(event.id)}
+                      onClick={() =>
+                        !event.title.includes('(반복)')
+                          ? deleteEvent(event.id)
+                          : addExceptionDateToEvent(event, event.date)
+                      }
                     />
                   </HStack>
                 </HStack>

@@ -3,7 +3,10 @@ import { useEffect, useState } from 'react';
 
 import { Event, EventForm } from '../types';
 
-export const useEventOperations = (editing: boolean, onSave?: () => void) => {
+export const useEventOperations = (
+  originated: boolean,
+  { onSave, onDelete }: { onSave?: () => void; onDelete?: () => void } = {}
+) => {
   const [events, setEvents] = useState<Event[]>([]);
   const toast = useToast();
 
@@ -29,7 +32,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
   const saveEvent = async (eventData: Event | EventForm) => {
     try {
       let response;
-      if (editing) {
+      if (originated) {
         response = await fetch(`/api/events/${(eventData as Event).id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -39,7 +42,7 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(eventData),
+          body: JSON.stringify({ ...eventData, id: undefined }),
         });
       }
 
@@ -47,10 +50,11 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         throw new Error('Failed to save event');
       }
 
-      await fetchEvents();
       onSave?.();
+      await fetchEvents();
+
       toast({
-        title: editing ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.',
+        title: originated ? '일정이 수정되었습니다.' : '일정이 추가되었습니다.',
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -74,7 +78,9 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
         throw new Error('Failed to delete event');
       }
 
+      onDelete?.();
       await fetchEvents();
+
       toast({
         title: '일정이 삭제되었습니다.',
         status: 'info',
