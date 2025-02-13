@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from 'react';
 
-import { Event, RepeatType } from '../types';
+import { Event, RepeatLimitType, RepeatType } from '../types';
 import { getTimeErrorMessage } from '../utils/timeValidation';
 
 type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
@@ -16,6 +16,10 @@ export const useEventForm = (initialEvent?: Event) => {
   const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
   const [repeatType, setRepeatType] = useState<RepeatType>(initialEvent?.repeat.type || 'none');
   const [repeatInterval, setRepeatInterval] = useState(initialEvent?.repeat.interval || 1);
+  const [repeatLimitType, setRepeatLimitType] = useState<RepeatLimitType>(
+    initialEvent?.repeat.limitType || 'date'
+  );
+  const [repeatEndCount, setRepeatEndCount] = useState(initialEvent?.repeat.endCount || 0);
   const [repeatEndDate, setRepeatEndDate] = useState(initialEvent?.repeat.endDate || '');
   const [repeatExceptions, setRepeatExceptions] = useState<string[]>([]);
   const [notificationTime, setNotificationTime] = useState(initialEvent?.notificationTime || 10);
@@ -50,6 +54,8 @@ export const useEventForm = (initialEvent?: Event) => {
     setIsRepeating(false);
     setRepeatType('none');
     setRepeatInterval(1);
+    setRepeatLimitType('date');
+    setRepeatEndCount(0);
     setRepeatEndDate('');
     setRepeatExceptions([]);
     setNotificationTime(10);
@@ -67,6 +73,8 @@ export const useEventForm = (initialEvent?: Event) => {
     setIsRepeating(event.repeat.type !== 'none');
     setRepeatType(event.repeat.type);
     setRepeatInterval(event.repeat.interval);
+    setRepeatLimitType(event.repeat.limitType);
+    setRepeatEndCount(event.repeat.endCount || 0);
     setRepeatEndDate(event.repeat.endDate || '');
     setRepeatExceptions(event.repeat.exceptions);
     setNotificationTime(event.notificationTime);
@@ -93,6 +101,10 @@ export const useEventForm = (initialEvent?: Event) => {
     setRepeatType,
     repeatInterval,
     setRepeatInterval,
+    repeatLimitType,
+    setRepeatLimitType,
+    repeatEndCount,
+    setRepeatEndCount,
     repeatEndDate,
     setRepeatEndDate,
     repeatExceptions,

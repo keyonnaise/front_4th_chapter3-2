@@ -34,7 +34,7 @@ function getNextRepeatEventDate(
     }
 
     case 'yearly': {
-      return new Date(cloned.setFullYear(cloned.getFullYear() + interval));
+      return addMonthsWithOriginalDate(cloned, originalDate, interval);
     }
 
     default: {
@@ -110,7 +110,8 @@ export function createRepeatEvents(event: Event, startDate: Date, endDate: Date)
       const foundIndex = event.repeat.exceptions.findIndex(
         (exception) => exception === stringified
       );
-      const disabled = foundIndex > -1;
+      const disabled =
+        foundIndex > -1 || (event.repeat.endCount && iteration > event.repeat.endCount + 1);
 
       if (!disabled) {
         const repeatEvent: Event = {

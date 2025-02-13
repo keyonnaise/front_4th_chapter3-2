@@ -45,7 +45,7 @@ import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
 import { useSearch } from './hooks/useSearch.ts';
-import { Event, EventForm, RepeatType } from './types';
+import { Event, EventForm, RepeatLimitType, RepeatType } from './types';
 import {
   formatDate,
   formatMonth,
@@ -89,6 +89,10 @@ function App() {
     setRepeatType,
     repeatInterval,
     setRepeatInterval,
+    repeatLimitType,
+    setRepeatLimitType,
+    repeatEndCount,
+    setRepeatEndCount,
     repeatEndDate,
     setRepeatEndDate,
     notificationTime,
@@ -123,7 +127,7 @@ function App() {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const toast = useToast();
-  
+
   const addOrUpdateEvent = async () => {
     if (!title || !date || !startTime || !endTime) {
       toast({
@@ -157,6 +161,8 @@ function App() {
       repeat: {
         type: isRepeating ? repeatType : 'none',
         interval: repeatInterval,
+        limitType: repeatLimitType,
+        endCount: repeatEndCount || undefined,
         endDate: repeatEndDate || undefined,
         exceptions: [],
       },
@@ -250,6 +256,7 @@ function App() {
 
   const renderMonthView = () => {
     const weeks = getWeeksAtMonth(currentDate);
+
     return (
       <VStack data-testid="month-view" align="stretch" w="full" spacing={4}>
         <Heading size="md">{formatMonth(currentDate)}</Heading>
@@ -423,24 +430,46 @@ function App() {
                   <option value="yearly">매년</option>
                 </Select>
               </FormControl>
+              <FormControl>
+                <FormLabel>반복 간격</FormLabel>
+                <Input
+                  type="number"
+                  value={repeatInterval}
+                  onChange={(e) => setRepeatInterval(Number(e.target.value))}
+                  min={1}
+                />
+              </FormControl>
               <HStack width="100%">
                 <FormControl>
-                  <FormLabel>반복 간격</FormLabel>
-                  <Input
-                    type="number"
-                    value={repeatInterval}
-                    onChange={(e) => setRepeatInterval(Number(e.target.value))}
-                    min={1}
-                  />
+                  <FormLabel>종료 유형</FormLabel>
+                  <Select
+                    value={repeatLimitType}
+                    onChange={(e) => setRepeatLimitType(e.target.value as RepeatLimitType)}
+                  >
+                    <option value="count">횟수</option>
+                    <option value="date">날짜</option>
+                  </Select>
                 </FormControl>
-                <FormControl>
-                  <FormLabel>반복 종료일</FormLabel>
-                  <Input
-                    type="date"
-                    value={repeatEndDate}
-                    onChange={(e) => setRepeatEndDate(e.target.value)}
-                  />
-                </FormControl>
+                {repeatLimitType === 'count' ? (
+                  <FormControl>
+                    <FormLabel>반복 종료 횟수</FormLabel>
+                    <Input
+                      type="number"
+                      value={repeatEndCount}
+                      onChange={(e) => setRepeatEndCount(Number(e.target.value))}
+                      min={1}
+                    />
+                  </FormControl>
+                ) : (
+                  <FormControl>
+                    <FormLabel>반복 종료일</FormLabel>
+                    <Input
+                      type="date"
+                      value={repeatEndDate}
+                      onChange={(e) => setRepeatEndDate(e.target.value)}
+                    />
+                  </FormControl>
+                )}
               </HStack>
             </VStack>
           )}
@@ -450,7 +479,7 @@ function App() {
           </Button>
         </VStack>
 
-        <VStack flex={1} spacing={5} align="stretch">
+        <VStack flex={1} spacing={5} align="stretch" data-testid="navigation">
           <Heading>일정 보기</Heading>
 
           <HStack mx="auto" justifyContent="space-between">
@@ -598,6 +627,8 @@ function App() {
                     repeat: {
                       type: isRepeating ? repeatType : 'none',
                       interval: repeatInterval,
+                      limitType: repeatLimitType,
+                      endCount: repeatEndCount || undefined,
                       endDate: repeatEndDate || undefined,
                       exceptions: [],
                     },
