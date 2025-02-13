@@ -123,7 +123,7 @@ function App() {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   const toast = useToast();
-
+  
   const addOrUpdateEvent = async () => {
     if (!title || !date || !startTime || !endTime) {
       toast({
@@ -195,8 +195,6 @@ function App() {
       console.error(error);
     }
   };
-
-  // console.log(filteredEvents);
 
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate);
