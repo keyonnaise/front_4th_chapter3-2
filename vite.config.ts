@@ -23,6 +23,7 @@ export default mergeConfig(
         reportsDirectory: './.coverage',
         reporter: ['lcov', 'json', 'json-summary'],
       },
+      exclude: ['**/e2e/**', '**/*.e2e.spec.js', '**/node_modules/**'],
     },
   })
 );
