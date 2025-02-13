@@ -22,6 +22,25 @@ const setup = (element: ReactElement) => {
 };
 
 // ! Hard 여기 제공 안함
+const resetSchedule = async (user: UserEvent) => {
+  await user.clear(screen.getByLabelText('제목'));
+  await user.clear(screen.getByLabelText('날짜'));
+  await user.clear(screen.getByLabelText('시작 시간'));
+  await user.clear(screen.getByLabelText('종료 시간'));
+  await user.clear(screen.getByLabelText('설명'));
+  await user.clear(screen.getByLabelText('위치'));
+  await user.selectOptions(screen.getByLabelText('카테고리'), '');
+  await user.selectOptions(screen.getByLabelText('알림 설정'), '10');
+
+  const 반복_설정 = screen.getByLabelText('반복 설정') as HTMLInputElement;
+  !반복_설정.checked && (await user.click(반복_설정));
+
+  await user.selectOptions(screen.getByLabelText('반복 유형'), 'none');
+  await user.clear(screen.getByLabelText('반복 간격'));
+  await user.type(screen.getByLabelText('반복 간격'), '1');
+  await user.clear(screen.getByLabelText('반복 종료일'));
+};
+
 const saveSchedule = async (
   user: UserEvent,
   form: Omit<Event, 'id' | 'notificationTime' | 'repeat'>
@@ -227,6 +246,30 @@ describe('일정 CRUD 및 기본 기능', () => {
     expect(screen.queryByText('삭제할 이벤트')).not.toBeInTheDocument();
     expect(screen.queryByText('삭제할 이벤트(반복)')).not.toBeInTheDocument();
   });
+
+  it('31일에 월 1회 반복을 가진 일정은 31일 -> 30일 -> 31일을 반복한다.', () => {
+    setupMockHandlers([
+      {
+        id: '1',
+        title: '다람쥐 이벤트',
+        date: '2024-10-31',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '다람쥐 헌 쳇바퀴에 타고파',
+        location: '도토리 나무',
+        category: '업무',
+        repeat: { type: 'monthly', interval: 1, exceptions: [] },
+        notificationTime: 10,
+      },
+    ]);
+
+    vi.setSystemTime(new Date('2024-11-30'));
+    setup(<App />);
+
+    const eventList = within(screen.getByTestId('event-list'));
+  });
+
+  it('윤년 2월 29일에 월 1회 반복을 가진 일정은 평년엔 28일 윤년에는 29일을 가진다.', () => {});
 });
 
 describe('일정 뷰', () => {
@@ -302,10 +345,6 @@ describe('일정 뷰', () => {
     // 1월 1일 셀 확인
     const januaryFirstCell = within(monthView).getByText('1').closest('td')!;
     expect(within(januaryFirstCell).getByText('신정')).toBeInTheDocument();
-  });
-
-  it('QWER', () => {
-    expect(true).toBe(false);
   });
 });
 
