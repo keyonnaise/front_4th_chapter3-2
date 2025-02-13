@@ -53,12 +53,6 @@ export function getWeeksAtMonth(currentDate: Date) {
 
 export function getEventsForDay(events: Event[], date: number): Event[] {
   return events.filter((event) => new Date(event.date).getDate() === date);
-  // const result: Event[] = [];
-  // events.forEach((event) => {
-  //   const repeatEvents = createRepeatEvents(event, date, date);
-  //   result.push(...repeatEvents);
-  // });
-  // return result;
 }
 
 export function formatWeek(targetDate: Date) {
