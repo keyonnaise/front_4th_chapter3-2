@@ -26,7 +26,12 @@ it('지정된 시간이 된 경우 알림이 새롭게 생성되어 추가된다
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime,
     },
   ];
@@ -76,7 +81,12 @@ it('이미 알림이 발생한 이벤트에 대해서는 중복 알림이 발생
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 10,
     },
   ];

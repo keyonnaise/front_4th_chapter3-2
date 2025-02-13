@@ -12,7 +12,12 @@ describe('getUpcomingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 10,
     },
     {
@@ -24,7 +29,12 @@ describe('getUpcomingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 30,
     },
     {
@@ -36,7 +46,12 @@ describe('getUpcomingEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 60,
     },
   ];
@@ -83,7 +98,12 @@ describe('createNotificationMessage', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 15,
     };
     const message = createNotificationMessage(event);

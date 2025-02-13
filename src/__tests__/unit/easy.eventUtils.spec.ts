@@ -12,7 +12,12 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 0,
     },
     {
@@ -24,7 +29,12 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 0,
     },
     {
@@ -36,7 +46,12 @@ describe('getFilteredEvents', () => {
       description: '',
       location: '',
       category: '',
-      repeat: { type: 'none', interval: 0, exceptions: [] },
+      repeat: {
+        type: 'none',
+        interval: 0,
+        limitType: 'date',
+        exceptions: [],
+      },
       notificationTime: 0,
     },
   ];
@@ -87,7 +102,12 @@ describe('getFilteredEvents', () => {
         description: '',
         location: '',
         category: '',
-        repeat: { type: 'none', interval: 0, exceptions: [] },
+        repeat: {
+          type: 'none',
+          interval: 0,
+          limitType: 'date',
+          exceptions: [],
+        },
         notificationTime: 0,
       },
       ...events,
@@ -100,7 +120,12 @@ describe('getFilteredEvents', () => {
         description: '',
         location: '',
         category: '',
-        repeat: { type: 'none', interval: 0, exceptions: [] },
+        repeat: {
+          type: 'none',
+          interval: 0,
+          limitType: 'date',
+          exceptions: [],
+        },
         notificationTime: 0,
       },
     ];

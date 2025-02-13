@@ -85,7 +85,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     expect(eventList.getByText('카테고리: 업무')).toBeInTheDocument();
   });
 
-  it('반복 일정을 포함해 입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
+  it('새로운 일정 정보에 반복 일정을 포함한 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     setupMockHandlerCreation();
 
     const { user } = setup(<App />);
@@ -93,7 +93,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     await user.click(screen.getAllByText('일정 추가')[0]);
 
     await user.type(screen.getByLabelText('제목'), '새 회의');
-    await user.type(screen.getByLabelText('날짜'), '2024-10-30');
+    await user.type(screen.getByLabelText('날짜'), '2024-10-25');
     await user.type(screen.getByLabelText('시작 시간'), '14:00');
     await user.type(screen.getByLabelText('종료 시간'), '15:00');
     await user.type(screen.getByLabelText('설명'), '프로젝트 진행 상황 논의');
@@ -105,9 +105,71 @@ describe('일정 CRUD 및 기본 기능', () => {
 
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('새 회의')).toBeInTheDocument();
-    expect(eventList.getByText('2024-10-30')).toBeInTheDocument();
-    expect(eventList.getByText('새 회의(반복)')).toBeInTheDocument();
-    expect(eventList.getByText('2024-10-31')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-25')).toBeInTheDocument();
+
+    expect(eventList.getAllByText('새 회의(반복)')).not.toHaveLength(0);
+    expect(eventList.getAllByText('14:00 - 15:00')).not.toHaveLength(0);
+    expect(eventList.getAllByText('프로젝트 진행 상황 논의')).not.toHaveLength(0);
+    expect(eventList.getAllByText('회의실 A')).not.toHaveLength(0);
+    expect(eventList.getAllByText('카테고리: 업무')).not.toHaveLength(0);
+  });
+
+  it('새로운 일정 정보에 반복 일정과 반복 종료일을 포함한 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    await user.click(screen.getAllByText('일정 추가')[0]);
+
+    await user.type(screen.getByLabelText('제목'), '새 회의');
+    await user.type(screen.getByLabelText('날짜'), '2024-10-25');
+    await user.type(screen.getByLabelText('시작 시간'), '14:00');
+    await user.type(screen.getByLabelText('종료 시간'), '15:00');
+    await user.type(screen.getByLabelText('설명'), '프로젝트 진행 상황 논의');
+    await user.type(screen.getByLabelText('위치'), '회의실 A');
+    await user.selectOptions(screen.getByLabelText('카테고리'), '업무');
+    await user.selectOptions(screen.getByLabelText('반복 유형'), '매일');
+    await user.selectOptions(screen.getByLabelText('종료 유형'), '날짜');
+    await user.type(screen.getByLabelText('반복 종료일'), '2024-10-26');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('새 회의')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-25')).toBeInTheDocument();
+
+    expect(eventList.getAllByText('새 회의(반복)')).toHaveLength(1);
+    expect(eventList.getAllByText('14:00 - 15:00')).toHaveLength(2);
+    expect(eventList.getAllByText('프로젝트 진행 상황 논의')).toHaveLength(2);
+    expect(eventList.getAllByText('회의실 A')).toHaveLength(2);
+    expect(eventList.getAllByText('카테고리: 업무')).toHaveLength(2);
+  });
+
+  it('새로운 일정 정보에 반복 일정과 반복 횟수를 포함한 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    await user.click(screen.getAllByText('일정 추가')[0]);
+
+    await user.type(screen.getByLabelText('제목'), '새 회의');
+    await user.type(screen.getByLabelText('날짜'), '2024-10-25');
+    await user.type(screen.getByLabelText('시작 시간'), '14:00');
+    await user.type(screen.getByLabelText('종료 시간'), '15:00');
+    await user.type(screen.getByLabelText('설명'), '프로젝트 진행 상황 논의');
+    await user.type(screen.getByLabelText('위치'), '회의실 A');
+    await user.selectOptions(screen.getByLabelText('카테고리'), '업무');
+    await user.selectOptions(screen.getByLabelText('반복 유형'), '매일');
+    await user.selectOptions(screen.getByLabelText('종료 유형'), '횟수');
+    await user.type(screen.getByLabelText('반복 종료 횟수'), '1');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('새 회의')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-25')).toBeInTheDocument();
+
+    expect(eventList.getAllByText('새 회의(반복)')).toHaveLength(1);
     expect(eventList.getAllByText('14:00 - 15:00')).toHaveLength(2);
     expect(eventList.getAllByText('프로젝트 진행 상황 논의')).toHaveLength(2);
     expect(eventList.getAllByText('회의실 A')).toHaveLength(2);
@@ -149,6 +211,34 @@ describe('일정 CRUD 및 기본 기능', () => {
     await user.click(screen.getByLabelText('반복 설정'));
     await user.selectOptions(screen.getByLabelText('반복 유형'), '매일');
     await user.type(screen.getByLabelText('반복 간격'), '1');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('수정된 회의')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-25')).toBeInTheDocument();
+
+    expect(eventList.getAllByText('수정된 회의(반복)')).not.toHaveLength(0);
+    expect(eventList.getAllByText('회의 내용 변경')).not.toHaveLength(0);
+  });
+
+  it('기존 일정에 반복 일정과 반복 종료일을 포함한 변경사항이 정확히 반영된다.', async () => {
+    const { user } = setup(<App />);
+
+    setupMockHandlerUpdating();
+
+    await user.click(await screen.findByLabelText('Edit event'));
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '수정된 회의');
+    await user.clear(screen.getByLabelText('날짜'));
+    await user.type(screen.getByLabelText('날짜'), '2024-10-25');
+    await user.clear(screen.getByLabelText('설명'));
+    await user.type(screen.getByLabelText('설명'), '회의 내용 변경');
+    await user.click(screen.getByLabelText('반복 설정'));
+    await user.selectOptions(screen.getByLabelText('반복 유형'), '매일');
+    await user.type(screen.getByLabelText('반복 간격'), '1');
+    await user.selectOptions(screen.getByLabelText('종료 유형'), '날짜');
     await user.type(screen.getByLabelText('반복 종료일'), '2024-10-26');
 
     await user.click(screen.getByTestId('event-submit-button'));
@@ -156,9 +246,38 @@ describe('일정 CRUD 및 기본 기능', () => {
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('수정된 회의')).toBeInTheDocument();
     expect(eventList.getByText('2024-10-25')).toBeInTheDocument();
-    expect(eventList.getByText('수정된 회의(반복)')).toBeInTheDocument();
-    expect(eventList.getByText('2024-10-26')).toBeInTheDocument();
-    expect(eventList.getAllByText('회의 내용 변경')).toHaveLength(2);
+
+    expect(eventList.getAllByText('수정된 회의(반복)')).not.toHaveLength(0);
+    expect(eventList.getAllByText('회의 내용 변경')).not.toHaveLength(0);
+  });
+
+  it('기존 일정에 반복 일정과 반복 횟수를를 포함한 변경사항이 정확히 반영된다.', async () => {
+    const { user } = setup(<App />);
+
+    setupMockHandlerUpdating();
+
+    await user.click(await screen.findByLabelText('Edit event'));
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '수정된 회의');
+    await user.clear(screen.getByLabelText('날짜'));
+    await user.type(screen.getByLabelText('날짜'), '2024-10-25');
+    await user.clear(screen.getByLabelText('설명'));
+    await user.type(screen.getByLabelText('설명'), '회의 내용 변경');
+    await user.click(screen.getByLabelText('반복 설정'));
+    await user.selectOptions(screen.getByLabelText('반복 유형'), '매일');
+    await user.type(screen.getByLabelText('반복 간격'), '1');
+    await user.selectOptions(screen.getByLabelText('종료 유형'), '횟수');
+    await user.type(screen.getByLabelText('반복 종료 횟수'), '1');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('수정된 회의')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-25')).toBeInTheDocument();
+
+    expect(eventList.getAllByText('수정된 회의(반복)')).not.toHaveLength(0);
+    expect(eventList.getAllByText('회의 내용 변경')).not.toHaveLength(0);
   });
 
   it('반복 일정 수정 시 단일 일정으로 변경되고 변경 전 반복 일정은 더 이상 조회되지 않는다.', async () => {
@@ -172,7 +291,12 @@ describe('일정 CRUD 및 기본 기능', () => {
         description: '기존 팀 미팅',
         location: '회의실 B',
         category: '업무',
-        repeat: { type: 'none', interval: 0, exceptions: [] },
+        repeat: {
+          type: 'none',
+          interval: 0,
+          limitType: 'date',
+          exceptions: [],
+        },
         notificationTime: 10,
       },
     ]);
@@ -229,7 +353,12 @@ describe('일정 CRUD 및 기본 기능', () => {
         description: '기존 팀 미팅',
         location: '회의실 B',
         category: '업무',
-        repeat: { type: 'daily', interval: 1, exceptions: [] },
+        repeat: {
+          type: 'daily',
+          interval: 1,
+          limitType: 'date',
+          exceptions: [],
+        },
         notificationTime: 10,
       },
     ]);
@@ -247,29 +376,109 @@ describe('일정 CRUD 및 기본 기능', () => {
     expect(screen.queryByText('삭제할 이벤트(반복)')).not.toBeInTheDocument();
   });
 
-  it('31일에 월 1회 반복을 가진 일정은 31일 -> 30일 -> 31일을 반복한다.', () => {
+  it('31일에 월 1회 반복을 가진 일정은 31일 -> 30일 -> 31일을 반복한다.', async () => {
     setupMockHandlers([
       {
         id: '1',
-        title: '다람쥐 이벤트',
+        title: '다람쥐 회의',
         date: '2024-10-31',
         startTime: '09:00',
         endTime: '10:00',
         description: '다람쥐 헌 쳇바퀴에 타고파',
         location: '도토리 나무',
         category: '업무',
-        repeat: { type: 'monthly', interval: 1, exceptions: [] },
+        repeat: {
+          type: 'monthly',
+          interval: 1,
+          limitType: 'date',
+          exceptions: [],
+        },
         notificationTime: 10,
       },
     ]);
 
-    vi.setSystemTime(new Date('2024-11-30'));
-    setup(<App />);
+    const { user } = setup(<App />);
+
+    await act(() => Promise.resolve(null));
+
+    const next = within(screen.getByTestId('navigation')).getByLabelText('Next');
 
     const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('다람쥐 회의')).toBeInTheDocument();
+    expect(eventList.getByText('2024-10-31')).toBeInTheDocument();
+
+    await user.click(next);
+
+    expect(eventList.getByText('다람쥐 회의(반복)')).toBeInTheDocument();
+    expect(eventList.getByText('2024-11-30')).toBeInTheDocument();
+
+    await user.click(next);
+
+    expect(eventList.getByText('다람쥐 회의(반복)')).toBeInTheDocument();
+    expect(eventList.getByText('2024-12-31')).toBeInTheDocument();
   });
 
-  it('윤년 2월 29일에 월 1회 반복을 가진 일정은 평년엔 28일 윤년에는 29일을 가진다.', () => {});
+  it('윤년 2월 29일에 년 1회 반복을 가진 일정은 평년엔 28일 윤년에는 29일을 가진다.', async () => {
+    vi.setSystemTime('2024-02-01');
+
+    setupMockHandlers([
+      {
+        id: '1',
+        title: '다람쥐 회의',
+        date: '2024-02-29',
+        startTime: '09:00',
+        endTime: '10:00',
+        description: '다람쥐 헌 쳇바퀴에 타고파',
+        location: '도토리 나무',
+        category: '업무',
+        repeat: {
+          type: 'yearly',
+          interval: 1,
+          limitType: 'date',
+          exceptions: [],
+        },
+        notificationTime: 10,
+      },
+    ]);
+
+    const { user } = setup(<App />);
+
+    await act(() => Promise.resolve(null));
+
+    const next = within(screen.getByTestId('navigation')).getByLabelText('Next');
+
+    const eventList = within(screen.getByTestId('event-list'));
+    expect(eventList.getByText('다람쥐 회의')).toBeInTheDocument();
+    expect(eventList.getByText('2024-02-29')).toBeInTheDocument();
+
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+
+    expect(eventList.getByText('다람쥐 회의(반복)')).toBeInTheDocument();
+    expect(eventList.getByText('2025-02-28')).toBeInTheDocument();
+
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+    await user.tripleClick(next);
+
+    expect(eventList.getByText('다람쥐 회의(반복)')).toBeInTheDocument();
+    expect(eventList.getByText('2028-02-29')).toBeInTheDocument();
+
+    vi.clearAllTimers();
+  });
 });
 
 describe('일정 뷰', () => {
@@ -363,7 +572,12 @@ describe('검색 기능', () => {
               description: '주간 팀 미팅',
               location: '회의실 A',
               category: '업무',
-              repeat: { type: 'none', interval: 0 },
+              repeat: {
+                type: 'none',
+                interval: 0,
+                limitType: 'date',
+                exceptions: [],
+              },
               notificationTime: 10,
             },
             {
@@ -375,7 +589,12 @@ describe('검색 기능', () => {
               description: '새 프로젝트 계획 수립',
               location: '회의실 B',
               category: '업무',
-              repeat: { type: 'none', interval: 0 },
+              repeat: {
+                type: 'none',
+                interval: 0,
+                limitType: 'date',
+                exceptions: [],
+              },
               notificationTime: 10,
             },
           ],
@@ -437,7 +656,12 @@ describe('일정 충돌', () => {
         description: '기존 팀 미팅',
         location: '회의실 B',
         category: '업무',
-        repeat: { type: 'none', interval: 0, exceptions: [] },
+        repeat: {
+          type: 'none',
+          interval: 0,
+          limitType: 'date',
+          exceptions: [],
+        },
         notificationTime: 10,
       },
     ]);
